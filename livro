@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Livro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{font-family:system-ui;background:#070b18;color:#e5e7eb;margin:0}
+.card{background:#0f172a;padding:1rem;border-radius:16px;margin:1rem}
+textarea,input,button{width:100%;margin:.4rem 0;padding:.6rem;border-radius:8px;border:none}
+button{background:#7c83ff;color:#fff;cursor:pointer}
+button.red{background:#fb7185}
+.comment{border-top:1px solid #1f2937;padding-top:.5rem;margin-top:.5rem}
+.small{font-size:.8rem;color:#9ca3af}
+</style>
+</head>
+<body>
+
+<div id="conteudo"></div>
+
+<script>
+let params=new URLSearchParams(location.search);
+let id=params.get("id");
+let user=localStorage.getItem("user")||"Leitor";
+let livros=JSON.parse(localStorage.getItem("livros"))||[];
+let comentarios=JSON.parse(localStorage.getItem("comentarios"))||[];
+let denuncias=JSON.parse(localStorage.getItem("denuncias"))||[];
+
+let livro=livros.find(l=>l.id==id);
+
+function salvar(){
+ localStorage.setItem("comentarios",JSON.stringify(comentarios));
+ localStorage.setItem("denuncias",JSON.stringify(denuncias));
+}
+
+function comentar(){
+ comentarios.push({
+  id:Date.now(),
+  livro:id,
+  autor:user,
+  texto:txt.value
+ });
+ salvar(); render();
+ txt.value="";
+}
+
+function apagar(cid){
+ comentarios=comentarios.filter(c=>c.id!==cid);
+ salvar(); render();
+}
+
+function editar(cid){
+ let c=comentarios.find(c=>c.id===cid);
+ let novo=prompt("Editar comentário:",c.texto);
+ if(novo){c.texto=novo;salvar();render();}
+}
+
+function denunciar(cid){
+ denuncias.push({
+  id:Date.now(),
+  tipo:"comentario",
+  alvo:cid,
+  livro:id,
+  por:user
+uhin 
+ });
+ salvar();
+ alert("Comentário denunciado.");
+}
+
+function render(){
+ conteudo.innerHTML=`
+ <div class="card">
+  <h2>${livro.titulo}</h2>
+  <p>${livro.desc}</p>
+ </div>
+
+ ${livro.cap.map(c=>`
+ <div class="card">
+  <h3>${c.titulo}</h3>
+  <p>${c.texto.replace(/\n/g,"<br>")}</p>
+ </div>`).join("")}
+
+ <div class="card">
+  <h3>Comentários</h3>
+  <textarea id="txt" placeholder="Escreve um comentário..."></textarea>
+  <button onclick="comentar()">Comentar</button>
+
+  ${comentarios.filter(c=>c.livro==id).map(c=>`
+   <div class="comment">
+    <strong>${c.autor}</strong>
+    <p>${c.texto}</p>
+    <span class="small">
+     <button onclick="editar(${c.id})">Editar</button>
+     <button onclick="apagar(${c.id})">Apagar</button>
+     <button class="red" onclick="denunciar(${c.id})">Denunciar</button>
+    </span>
+   </div>
+  `).join("")}
+ </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
