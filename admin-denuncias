@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Denúncias</title>
+<style>
+body{font-family:system-ui;background:#070b18;color:#e5e7eb}
+.card{background:#0f172a;padding:1rem;border-radius:16px;margin:1rem}
+button{background:#10b981;color:#fff;border:none;padding:.5rem;cursor:pointer}
+</style>
+</head>
+<body>
+
+<h2>🚨 Denúncias</h2>
+<div id="lista"></div>
+
+<script>
+let denuncias=JSON.parse(localStorage.getItem("denuncias"))||[];
+
+function resolver(id){
+ denuncias=denuncias.filter(d=>d.id!==id);
+ localStorage.setItem("denuncias",JSON.stringify(denuncias));
+ render();
+}
+
+function render(){
+ lista.innerHTML="";
+ denuncias.forEach(d=>{
+  lista.innerHTML+=`
+   <div class="card">
+    <p>Tipo: ${d.tipo}</p>
+    <p>Livro: ${d.livro}</p>
+    <p>Por: ${d.por}</p>
+    <button onclick="resolver(${d.id})">Marcar como resolvido</button>
+   </div>`;
+ });
+}
+
+render();
+</script>
+</body>
+</html>
