@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Painel do Autor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{margin:0;font-family:system-ui;background:#070b18;color:#e5e7eb}
+.card{background:#0f172a;padding:1rem;border-radius:16px;margin:1rem}
+input,textarea,button{width:100%;margin:.4rem 0;padding:.6rem;border-radius:8px;border:none}
+button{background:#7c83ff;color:#fff}
+</style>
+</head>
+<body>
+
+<div class="card">
+<h3>Novo Livro</h3>
+<input id="t" placeholder="Título">
+<textarea id="d" placeholder="Descrição"></textarea>
+<button onclick="criar()">Criar</button>
+</div>
+
+<div id="livros"></div>
+
+<script>
+let autor=localStorage.getItem("user");
+if(!autor) location.href="auth.html";
+
+let livros=JSON.parse(localStorage.getItem("livros"))||[];
+
+function criar(){
+ livros.push({id:Date.now(),titulo:t.value,desc:d.value,autor,cap:[]});
+ salvar(); render();
+}
+
+function cap(id){
+ let titulo=prompt("Título");
+ let texto=prompt("Texto");
+ let l=livros.find(x=>x.id===id);
+ l.cap.push({id:Date.now(),titulo,texto});
+ salvar(); render();
+}
+
+function salvar(){localStorage.setItem("livros",JSON.stringify(livros));}
+
+function render(){
+ livrosDiv.innerHTML="";
+ livros.filter(l=>l.autor===autor).forEach(l=>{
+  livrosDiv.innerHTML+=`
+   <div class="card">
+    <h4>${l.titulo}</h4>
+    <button onclick="cap(${l.id})">+ Capítulo</button>
+    ${l.cap.map(c=>`<p>📄 ${c.titulo}</p>`).join("")}
+   </div>`;
+ });
+}
+
+let livrosDiv=document.getElementById("livros");
+render();
+</script>
+</body>
+</html>
